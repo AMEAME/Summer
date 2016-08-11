@@ -1,18 +1,4 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <math.h>
-#include <ctype.h>
-
-
-typedef struct
-{
-    unsigned char magic_number;
-    unsigned int width;
-    unsigned int height;
-    unsigned int rgb;
-    unsigned char **data;
-} pgm_t;
+#include "pgm.h"
 
 FILE *open_file(FILE *fp, char *file_name, char *mode)
 {
@@ -90,7 +76,7 @@ pgm_t set_data(pgm_t pgm, unsigned char *buffer_data, unsigned int data_size)
     unsigned int i, j;
     for (i = 0; i < pgm.height; i++)
     {
-	    pgm.data[i] = (char *)malloc(sizeof(char) * pgm.width);
+	    pgm.data[i] = malloc(sizeof(char) * pgm.width);
 	    for (j = 0; j < pgm.width; j++)
         {
 		    pgm.data[i][j] = buffer_data[i * pgm.width + j];
@@ -159,22 +145,4 @@ void write_pgm(char *file_name, pgm_t pgm)
     buffer = create_data(buffer, pgm);
     fwrite(buffer, sizeof(char), pgm_size, fp);
     fclose(fp);
-}
-
-int main(int argc, char **argv)
-{
-    if (argc != 2) return 1;
-    char *file_name = argv[1];
-    pgm_t pgm = read_pgm(file_name);
-    int i, j;
-    int median = pgm.rgb / 2;
-    for (i = 0; i < pgm.height; i++)
-    {
-        for (j = 0; j < pgm.width; j++)
-        {
-            pgm.data[i][j] = pgm.data[i][j] >= median ? pgm.rgb : 0;
-        }
-    }
-    write_pgm("out.pgm", pgm);
-    return 0;
 }
