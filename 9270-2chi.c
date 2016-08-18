@@ -8,9 +8,9 @@
 typedef struct
 {
     unsigned char magic_number;
-    unsigned int width;
-    unsigned int height;
-    unsigned int rgb;
+    int width;
+    int height;
+    int rgb;
     unsigned char **data;
 } pgm_t;
 
@@ -48,14 +48,12 @@ unsigned char *to_c(unsigned char *string, int num, int start, int digit)
 
 int get_header_size(char *file_name)
 {
-    FILE *fp = open_file(fp, file_name, "r");
+    FILE *fp = NULL;
+    fp = open_file(fp, file_name, "r");
     int space = 0, header_size = 0;
     while (space <= 3)
     {
-        if (isspace(getc(fp)))
-        {
-            space++;
-        }
+        space += isspace(getc(fp)) ? 1 : 0;
         header_size++;
     }
     fclose(fp);
@@ -64,10 +62,10 @@ int get_header_size(char *file_name)
 
 int calc_header_size(pgm_t pgm)
 {
-    unsigned int tmp, sum = 6;
-    for (tmp = pgm.width; tmp != 0; sum++, tmp /= 10) {}
-    for (tmp = pgm.height; tmp != 0; sum++, tmp /= 10) {}
-    for (tmp = pgm.rgb; tmp != 0; sum++, tmp /= 10) {}
+    int tmp, sum = 6;
+    for (tmp = pgm.width; tmp != 0; sum++, tmp /= 10) ;
+    for (tmp = pgm.height; tmp != 0; sum++, tmp /= 10) ;
+    for (tmp = pgm.rgb; tmp != 0; sum++, tmp /= 10) ;
     return sum;
 }
 
@@ -75,22 +73,22 @@ pgm_t set_pgm(pgm_t pgm, char *header)
 {
     pgm.magic_number = header[1] - '0';
     int start = 3, end = 3;
-    for (; !isspace(header[end]); end++) {}
+    for (; !isspace(header[end]); end++) ;
     pgm.width = to_i(header, start, end);
-    for (start = ++end; !isspace(header[end]); end++) {}
+    for (start = ++end; !isspace(header[end]); end++) ;
     pgm.height = to_i(header, start, end);
-    for (start = ++end; !isspace(header[end]); end++) {}
+    for (start = ++end; !isspace(header[end]); end++) ;
     pgm.rgb = to_i(header, start, end);
     return pgm;
 }
 
-pgm_t set_data(pgm_t pgm, unsigned char *buffer_data, unsigned int data_size)
+pgm_t set_data(pgm_t pgm, unsigned char *buffer_data, int data_size)
 {
     pgm.data = (unsigned char **)malloc(data_size * sizeof(char *));
-    unsigned int i, j;
+    int i, j;
     for (i = 0; i < pgm.height; i++)
     {
-	    pgm.data[i] = (char *)malloc(sizeof(char) * pgm.width);
+	    pgm.data[i] = (unsigned char *)malloc(sizeof(char) * pgm.width);
 	    for (j = 0; j < pgm.width; j++)
         {
 		    pgm.data[i][j] = buffer_data[i * pgm.width + j];
@@ -122,7 +120,7 @@ unsigned char *create_header(unsigned char *string, pgm_t pgm)
 
 unsigned char *create_data(unsigned char *string, pgm_t pgm)
 {
-    unsigned int i, j;
+    int i, j;
     int header_size = calc_header_size(pgm);
     for (i = 0; i < pgm.height; i++)
     {
@@ -138,11 +136,12 @@ pgm_t read_pgm(char *file_name)
 {
     pgm_t pgm;
     int header_size = get_header_size(file_name);
-    FILE *fp = open_file(fp, file_name, "rb");
+    FILE *fp = NULL;
+    fp = open_file(fp, file_name, "rb");
     char header[header_size];
     fread(header, sizeof(char), header_size, fp);
     pgm = set_pgm(pgm, header);
-    unsigned int data_size = pgm.width * pgm.height;
+    int data_size = pgm.width * pgm.height;
     unsigned char *buffer_data = (unsigned char *)malloc(data_size * sizeof(char));
     fread(buffer_data, sizeof(char), data_size, fp);
     pgm = set_data(pgm, buffer_data, data_size);
@@ -152,8 +151,9 @@ pgm_t read_pgm(char *file_name)
 
 void write_pgm(char *file_name, pgm_t pgm)
 {
-    FILE* fp = open_file(fp, file_name, "wb");
-    unsigned int pgm_size = pgm.width * pgm.height + calc_header_size(pgm);
+    FILE* fp = NULL;
+    fp = open_file(fp, file_name, "wb");
+    int pgm_size = pgm.width * pgm.height + calc_header_size(pgm);
     unsigned char *buffer = (unsigned char *)malloc(pgm_size * sizeof(char));
     buffer = create_header(buffer, pgm);
     buffer = create_data(buffer, pgm);
