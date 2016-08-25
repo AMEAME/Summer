@@ -1,3 +1,5 @@
+/* Copyright 2016 Ryuichirouh Ikeuchi. All rights reserved. */
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -169,6 +171,8 @@ int main(int argc, char **argv)
     pgm_t pgm1 = read_pgm(file_name1);
     pgm_t pgm2 = read_pgm(file_name2);
 
+    // 画像ファイルのデータを編集します。
+    // ========================================================================
     unsigned char **duped = (unsigned char **)malloc(pgm1.width * pgm1.height * sizeof(char));
     unsigned int i, j;
     for (i = 0; i < pgm1.height; i++)
@@ -216,6 +220,8 @@ int main(int argc, char **argv)
             }
         }
     }
+    // ========================================================================
+
     write_pgm("out.pgm", pgm1);
     return 0;
 }
