@@ -90,15 +90,15 @@ unsigned char *create_header(unsigned char *string, pgm_t pgm) {
     string[1] = pgm.magic_number + '0';
     string[2] = '\n';
     int start = 3, digit, tmp;
-    for (digit = 0, tmp = pgm.width; tmp != 0; digit++, tmp /= 10) {}
+    for (digit = 0, tmp = pgm.width; tmp != 0; digit++, tmp /= 10) ;
     string = to_c(string, pgm.width, start, digit);
     start += digit;
     string[start++] = ' ';
-    for (digit = 0, tmp = pgm.height; tmp != 0; digit++, tmp /= 10) {}
+    for (digit = 0, tmp = pgm.height; tmp != 0; digit++, tmp /= 10) ;
     string = to_c(string, pgm.height, start, digit);
     start += digit;
     string[start++] = '\n';
-    for (digit = 0, tmp = pgm.rgb; tmp != 0; digit++, tmp /= 10) {}
+    for (digit = 0, tmp = pgm.rgb; tmp != 0; digit++, tmp /= 10) ;
     string = to_c(string, pgm.rgb, start, digit);
     start += digit;
     string[start] = '\n';

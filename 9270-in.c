@@ -7,8 +7,7 @@
 #include <ctype.h>
 
 
-typedef struct
-{
+typedef struct {
     unsigned char magic_number;
     int width;
     int height;
@@ -16,31 +15,25 @@ typedef struct
     unsigned char **data;
 } pgm_t;
 
-FILE *open_file(FILE *fp, char *file_name, char *mode)
-{
-    if((fp = fopen(file_name, mode)) == NULL)
-    {
+FILE *open_file(FILE *fp, char *file_name, char *mode) {
+    if((fp = fopen(file_name, mode)) == NULL) {
 		perror(file_name);
         exit(EXIT_FAILURE);
 	}
     return fp;
 }
 
-int to_i(char *arg, int start, int end)
-{
+int to_i(char *arg, int start, int end) {
     int num = 0;
     int digit = end - start - 1;
-    for (; start < end; start++, digit--)
-    {
+    for (; start < end; start++, digit--) {
         num += (arg[start] - '0') * (int)pow(10, digit);
     }
     return num;
 }
 
-unsigned char *to_c(unsigned char *string, int num, int start, int digit)
-{
-    for (; digit > 0; start++, digit--)
-    {
+unsigned char *to_c(unsigned char *string, int num, int start, int digit) {
+    for (; digit > 0; start++, digit--) {
         int tmp = (int)pow(10, digit - 1);
         string[start] = num / tmp + '0';
         num %= tmp;
@@ -48,13 +41,11 @@ unsigned char *to_c(unsigned char *string, int num, int start, int digit)
     return string;
 }
 
-int get_header_size(char *file_name)
-{
+int get_header_size(char *file_name) {
     FILE *fp = NULL;
     fp = open_file(fp, file_name, "r");
     int space = 0, header_size = 0;
-    while (space <= 3)
-    {
+    while (space <= 3) {
         space += isspace(getc(fp)) ? 1 : 0;
         header_size++;
     }
@@ -62,8 +53,7 @@ int get_header_size(char *file_name)
     return header_size;
 }
 
-int calc_header_size(pgm_t pgm)
-{
+int calc_header_size(pgm_t pgm) {
     int tmp, sum = 6;
     for (tmp = pgm.width; tmp != 0; sum++, tmp /= 10) ;
     for (tmp = pgm.height; tmp != 0; sum++, tmp /= 10) ;
@@ -71,8 +61,7 @@ int calc_header_size(pgm_t pgm)
     return sum;
 }
 
-pgm_t set_pgm(pgm_t pgm, char *header)
-{
+pgm_t set_pgm(pgm_t pgm, char *header) {
     pgm.magic_number = header[1] - '0';
     int start = 3, end = 3;
     for (; !isspace(header[end]); end++) ;
@@ -84,58 +73,50 @@ pgm_t set_pgm(pgm_t pgm, char *header)
     return pgm;
 }
 
-pgm_t set_data(pgm_t pgm, unsigned char *buffer_data, int data_size)
-{
+pgm_t set_data(pgm_t pgm, unsigned char *buffer_data, int data_size) {
     pgm.data = (unsigned char **)malloc(data_size * sizeof(char *));
     int i, j;
-    for (i = 0; i < pgm.height; i++)
-    {
+    for (i = 0; i < pgm.height; i++) {
 	    pgm.data[i] = (unsigned char *)malloc(sizeof(char) * pgm.width);
-	    for (j = 0; j < pgm.width; j++)
-        {
+	    for (j = 0; j < pgm.width; j++) {
 		    pgm.data[i][j] = buffer_data[i * pgm.width + j];
 	    }
     }
     return pgm;
 }
 
-unsigned char *create_header(unsigned char *string, pgm_t pgm)
-{
+unsigned char *create_header(unsigned char *string, pgm_t pgm) {
     string[0] = 'P';
     string[1] = pgm.magic_number + '0';
     string[2] = '\n';
     int start = 3, digit, tmp;
-    for (digit = 0, tmp = pgm.width; tmp != 0; digit++, tmp /= 10) {}
+    for (digit = 0, tmp = pgm.width; tmp != 0; digit++, tmp /= 10) ;
     string = to_c(string, pgm.width, start, digit);
     start += digit;
     string[start++] = ' ';
-    for (digit = 0, tmp = pgm.height; tmp != 0; digit++, tmp /= 10) {}
+    for (digit = 0, tmp = pgm.height; tmp != 0; digit++, tmp /= 10) ;
     string = to_c(string, pgm.height, start, digit);
     start += digit;
     string[start++] = '\n';
-    for (digit = 0, tmp = pgm.rgb; tmp != 0; digit++, tmp /= 10) {}
+    for (digit = 0, tmp = pgm.rgb; tmp != 0; digit++, tmp /= 10) ;
     string = to_c(string, pgm.rgb, start, digit);
     start += digit;
     string[start] = '\n';
     return string;
 }
 
-unsigned char *create_data(unsigned char *string, pgm_t pgm)
-{
+unsigned char *create_data(unsigned char *string, pgm_t pgm) {
     int i, j;
     int header_size = calc_header_size(pgm);
-    for (i = 0; i < pgm.height; i++)
-    {
-        for (j = 0; j < pgm.width; j++)
-        {
+    for (i = 0; i < pgm.height; i++) {
+        for (j = 0; j < pgm.width; j++) {
             string[i * pgm.width + j + header_size] = pgm.data[i][j];
         }
     }
     return string;
 }
 
-pgm_t read_pgm(char *file_name)
-{
+pgm_t read_pgm(char *file_name) {
     pgm_t pgm;
     int header_size = get_header_size(file_name);
     FILE *fp = NULL;
@@ -151,8 +132,7 @@ pgm_t read_pgm(char *file_name)
     return pgm;
 }
 
-void write_pgm(char *file_name, pgm_t pgm)
-{
+void write_pgm(char *file_name, pgm_t pgm) {
     FILE* fp = NULL;
     fp = open_file(fp, file_name, "wb");
     int pgm_size = pgm.width * pgm.height + calc_header_size(pgm);
@@ -163,8 +143,7 @@ void write_pgm(char *file_name, pgm_t pgm)
     fclose(fp);
 }
 
-int main(int argc, char **argv)
-{
+int main(int argc, char **argv) {
     if (argc != 3) return 1;
     char *file_name1 = argv[1];
     char *file_name2 = argv[2];
@@ -179,48 +158,37 @@ int main(int argc, char **argv)
     unsigned char **duped = (unsigned char **)malloc(pgm1.width * pgm1.height * sizeof(char));
 
     unsigned int i, j;
-    for (i = 0; i < pgm1.height; i++)
-    {
+    for (i = 0; i < pgm1.height; i++) {
 	    duped[i] = (unsigned char *)malloc(pgm1.width * sizeof(char));
-	    for (j = 0; j < pgm1.width; j++)
-        {
+	    for (j = 0; j < pgm1.width; j++) {
 		    duped[i][j] = pgm1.data[i][j];
 	    }
     }
     
-    if (pgm1.width < pgm2.width && pgm1.height < pgm2.height)
-    {
+    if (pgm1.width < pgm2.width && pgm1.height < pgm2.height) {
         pgm1.width = pgm2.width;
         pgm1.height = pgm2.height;
         pgm1.data = (unsigned char **)realloc(pgm1.data, pgm1.width * pgm1.height * sizeof(char));
-        for (i = 0; i < pgm1.height; i++)
-        {
+        for (i = 0; i < pgm1.height; i++) {
             pgm1.data[i] = (unsigned char *)realloc(pgm1.data[i], pgm1.width * sizeof(char));
-            for (j = 0; j < pgm1.width; j++)
-            {
+            for (j = 0; j < pgm1.width; j++) {
                 pgm1.data[i][j] = pgm2.data[i][j];
-                if (i < pgm1_height && j < pgm1_width)
-                {
+                if (i < pgm1_height && j < pgm1_width) {
                     pgm1.data[i][j] = duped[i][j];
                 }
             }
         }
     }
-    else if (pgm1.width >= pgm2.width && pgm1.height >= pgm2.height)
-    {
-        for (i = 0; i < pgm1.height; i++)
-        {
-            for (j = 0; j < pgm1.width; j++)
-            {
-                if (i < pgm2.height && j < pgm2.width)
-                {
+    else if (pgm1.width >= pgm2.width && pgm1.height >= pgm2.height) {
+        for (i = 0; i < pgm1.height; i++) {
+            for (j = 0; j < pgm1.width; j++) {
+                if (i < pgm2.height && j < pgm2.width) {
                     pgm1.data[i][j] = pgm2.data[i][j];
                 }
             }
         }
     }
-    else
-    {
+    else {
         puts("error");
     }
     // ========================================================================
