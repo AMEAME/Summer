@@ -172,7 +172,7 @@ int main(int argc, char **argv) {
         pgm1.data[i] = (unsigned char *)malloc(pgm1.width * sizeof(char));
         for (j = 0; j < pgm1.width; j++) {
             if (j < pgm1_width) {
-                pgm1.data[i][j] = duped[i][j] : pgm1.rgb;
+                pgm1.data[i][j] = i < pgm1_height ? duped[i][j] : pgm1.rgb;
             } else {
                 pgm1.data[i][j] = i < pgm2.height ? pgm2.data[i][j - pgm1_width] : pgm1.rgb;
             }
